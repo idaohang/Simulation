@@ -128,7 +128,7 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     MAX_ACCEPTABLE_DISTANCE=sin(MAX_ANGLE)*SUN_POSITION_ABOVE_EARTH;
     
     double NET_FLUX=0;
-
+    
     for(double alpha = 0; alpha < ALPHA_MAX; alpha = alpha + alpha_interval)
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
@@ -162,26 +162,50 @@ int main ()
     double albedo_PARAM=.8;
     
     double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
-    cout << result << endl;
+     cout << result << endl;
     
-//    //let's iterate through some values of the sun to check ...
+    
+//    //ToCheck the above function, let's run a for loop that simulates if the earth and satellite didn't move but the sun rose and set...
 //    
-//    double x=150*pow(10,9); //sun starts out on the horizon.
-//    double x_final
-//    
-//    double answer = runForLoop();
-//    cout << "Result: " << answer;
+//    //    //let's iterate through some values of the sun to check ...
+//    //
+//    double x_initial=150*pow(10,9); //sun starts out on the horizon.
+//    double x_final=-150*pow(10,9);
+//    int NUM_STEPS=20;
+//    double sun_interval=fabs((x_final-x_initial)/NUM_STEPS);
 //    
 //    ofstream myfile;
-//    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
-//    if (!myfile.is_open()){
+//    myfile.open("outPutFile", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
+//    if (!myfile.is_open()) {
 //        cerr << "Fail to open output file\n";
 //        exit(EXIT_FAILURE);
 //    }
-//    myfile << answer;
-//    myfile << "\n";
-//    myfile.flush();
-//    myfile.close();
+//    
+//    for(double SUN_X = x_initial; SUN_X > x_final; SUN_X = SUN_X - sun_interval)
+//    {
+//        //we're not varying y, so we don't need to worry about that
+//        //we have to calculate our z value.
+//        double Z_Pos=pow( pow(150*pow(10,9),2) - pow(SUN_X,2) , .5 );
+//        double result=returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X, 0, Z_Pos, albedo_PARAM);
+//        
+//        myfile << result;
+//        myfile << "\n";
+//        myfile.close();
+    }
+    
+    //    double answer = runForLoop();
+    //    cout << "Result: " << answer;
+    //
+    //    ofstream myfile;
+    //    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
+    //    if (!myfile.is_open()){
+    //        cerr << "Fail to open output file\n";
+    //        exit(EXIT_FAILURE);
+    //    }
+    //    myfile << answer;
+    //    myfile << "\n";
+    //    myfile.flush();
+    //    myfile.close();
 }
 
 
