@@ -55,7 +55,7 @@ const double M_b=E_s/4; //As derived in the paper.
 
 const int NUM_STEPS_THETA=20;
 
-const int NUM_STEPS_BETA=20;
+const int NUM_STEPS_beta=20;
 
 double THETA_MAX;
 
@@ -63,7 +63,7 @@ double BETA_MAX;
 
 double theta_interval;
 
-double BETA_interval;
+double beta_interval;
 
 /////////////////////////////////////////////////////END CONSTANT DEFINITIONS
 //////////////////////////////////////////////////////////////////////////
@@ -73,25 +73,25 @@ double magnitudeOfVector (double x, double y, double z)  {
     return pow( (pow(x,2) + pow(y,2) + pow(z,2)) ,  .5);
 }
 
-double returnSunAngleForAreaElementAt(double BETA, double theta)  { //this is the angle between the sun and the normal vector to the earth element.
-    double x=EARTH_RADIUS*cos(theta)*sin(BETA); //just translating from cartesian to spherical.
-    double y=EARTH_RADIUS*sin(theta)*sin(BETA);
-    double z=EARTH_RADIUS*cos(BETA);
+double returnSunAngleForAreaElementAt(double beta, double theta)  { //this is the angle between the sun and the normal vector to the earth element.
+    double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
+    double y=EARTH_RADIUS*sin(theta)*sin(beta);
+    double z=EARTH_RADIUS*cos(beta);
     return returnAngleBetweenTwoVectors(x, y, z, SUN_X, SUN_Y, SUN_Z);
 }
 
-double calculateSunlightEffect(double BETA, double theta) { //related math in djax notes...
-    double x=EARTH_RADIUS*cos(theta)*sin(BETA); //just translating from cartesian to spherical.
-    double y=EARTH_RADIUS*sin(theta)*sin(BETA);
-    double z=EARTH_RADIUS*cos(BETA);
+double calculateSunlightEffect(double beta, double theta) { //related math in djax notes...
+    double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
+    double y=EARTH_RADIUS*sin(theta)*sin(beta);
+    double z=EARTH_RADIUS*cos(beta);
     
     double r = returnDistanceBetweenPoints(x, y, z, SAT_X, SAT_Y, SAT_Z);  //distance between area element and the satellite.
     
-    //We have been using the variable BETA to denote the limits of our discretization.
-    //Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the BETA we have been using an an for loop variable.
+    //We have been using the variable beta to denote the limits of our discretization.
+    //Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
     double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
     
-    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(BETA,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*BETA_interval; //this is an approximation for our area, using dA=d_BETA*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
+    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*beta_interval; //this is an approximation for our area, using dA=d_beta*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
 }
 
 double returnAngleBetweenTwoVectors(double X, double Y, double Z, double X0, double Y0, double Z0) {
@@ -107,11 +107,11 @@ double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, doub
     return distance;
 }
 
-bool returnValidPointInRelationToSun (double BETA, double theta) //returns whether a point
+bool returnValidPointInRelationToSun (double beta, double theta) //returns whether a point
 {
-    double x=EARTH_RADIUS*cos(theta)*sin(BETA); //just translating from cartesian to spherical.
-    double y=EARTH_RADIUS*sin(theta)*sin(BETA);
-    double z=EARTH_RADIUS*cos(BETA);
+    double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
+    double y=EARTH_RADIUS*sin(theta)*sin(beta);
+    double z=EARTH_RADIUS*cos(beta);
     
     double ACTUAL_DISTANCE=returnDistanceBetweenPoints(x, y, z, SUN_X, SUN_Y, SUN_Z);
     
@@ -136,30 +136,30 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     
     theta_interval=THETA_MAX/NUM_STEPS_THETA;
     
-    BETA_interval=BETA_MAX/NUM_STEPS_BETA;
+    beta_interval=BETA_MAX/NUM_STEPS_beta;
     
     double SUN_POSITION_FROM_EARTH_CENTER=returnDistanceBetweenPoints(0, 0, 0, SUN_X, SUN_Y, SUN_Z);
     
     double MAX_ANGLE=acos(EARTH_RADIUS/SUN_POSITION_FROM_EARTH_CENTER);
     
-    //defined in diagram, different than BETA
+    //defined in diagram, different than beta
     MAX_ACCEPTABLE_DISTANCE=sin(MAX_ANGLE)*SUN_POSITION_FROM_EARTH_CENTER;
     
     double NET_FLUX=0;
     
-    for(double BETA = 0; BETA < BETA_MAX; BETA = BETA + BETA_interval)
+    for(double beta = 0; beta < BETA_MAX; beta = beta + beta_interval)
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
-            double BETA_new=BETA+BETA_interval/2; //approximating the centroid.
+            double beta_new=beta+beta_interval/2; //approximating the centroid.
             double theta_new=theta+theta_interval/2;
             
-            if (returnValidPointInRelationToSun(BETA_new,theta_new))  {
+            if (returnValidPointInRelationToSun(beta_new,theta_new))  {
                 //calculate the z position for this discrete piece
                 
                 double dFLUX;
                 
-                dFLUX=calculateSunlightEffect(BETA,theta);
+                dFLUX=calculateSunlightEffect(beta,theta);
                 
                 NET_FLUX=NET_FLUX+dFLUX;
             }
