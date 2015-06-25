@@ -43,9 +43,19 @@ double MAX_ACCEPTABLE_DISTANCE;
 
 const double E_s=120; //wiki
 
-const int NUM_STEPS=20;
+const double M_b=E_s/4;
 
-const double interval=2*M_PI/NUM_STEPS;
+const int NUM_STEPS_THETA=20;
+
+const int NUM_STEPS_ALPHA=20;
+
+const double THETA_MAX=2*M_PI;
+
+const double ALPHA_MAX=acos(EARTH_RADIUS/SAT_Y_POSITION); //returning NAN, not a number...
+
+const double theta_interval=2*M_PI/NUM_STEPS_THETA;
+
+const double alpha_interval=M_PI/NUM_STEPS_ALPHA;
 
 /////////////////////////////////////////////////////END CONSTANT DEFINITIONS
 //////////////////////////////////////////////////////////////////////////
@@ -62,12 +72,12 @@ double sunAngle()  { //dot product.
 }
 
 double returnRForAlpha(double alpha)   { //defined in a diagram made by djax
-    return pow(   pow(SAT_Y_POSITION-EARTH_RADIUS*cos(alpha),2)+  pow(EARTH_RADIUS*sin(alpha),2)       ,.5);
+        return pow(   pow(SAT_Y_POSITION-EARTH_RADIUS*cos(alpha),2)+  pow(EARTH_RADIUS*sin(alpha),2)       ,.5);
 }
 
 double calculateSunlightEffect(double alpha, double theta) { //related math in djax notes...
     double r = returnRForAlpha(alpha); //as defined in djax notes.
-    return (albedo*E_s*cos(sunAngle())+e*E_s/4)*Ac/(M_PI*pow(r,2))*cos(alpha)*pow(interval,2);
+    return (albedo*E_s*cos(sunAngle())+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*alpha_interval; //this is an approximation for our area, using dA=d_alpha*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
 }
 
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0)    {
@@ -98,10 +108,9 @@ double runForLoop()    { //function that simply iterates over a square, and calc
     
     double NET_FLUX=0;
 
-    double alpha_max=acos(EARTH_RADIUS/SAT_Y_POSITION); //returning NAN, not a number...
-    for(double alpha = 0; alpha < alpha_max; alpha = alpha + interval)
+    for(double alpha = 0; alpha < ALPHA_MAX; alpha = alpha + alpha_interval)
     {
-        for(double theta = 0; theta <2*M_PI; theta = theta + interval)
+        for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
             //round the corners of the for loop
             
