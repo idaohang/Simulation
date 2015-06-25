@@ -25,13 +25,13 @@ using namespace std;
 //Sun position, cartesian coordinates.
 const double SUN_X=0;
 const double SUN_Y=0;
-const double SUN_Z=94000000;
+const double SUN_Z=150*pow(10,9);
 
 //Satellite position is directly above origin... (SAT_Y_POSITION)
 
 const double EARTH_RADIUS=6371000;
 
-const double SAT_Y_POSITION=1200.0+EARTH_RADIUS; //distance above the center of the earth
+const double SAT_Y_POSITION=35786000+EARTH_RADIUS; //distance above the center of the earth (wiki, typical satellite)
 
 const double albedo=.8;
 
@@ -133,6 +133,8 @@ int main ()
     double answer = runForLoop();
     cout << "Result: " << answer;
 }
+
+//Optimizations are going to be a critical way to make our program more efficient. Here we define several functions that allow us to disregard
 
 
 
