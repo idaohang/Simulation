@@ -41,7 +41,7 @@ const double Ac=1.0;
 
 double MAX_ACCEPTABLE_DISTANCE;
 
-const double E_s=120; //wiki
+const double E_s=120; //wiki (W/m^2)
 
 const double M_b=E_s/4;
 
@@ -51,11 +51,11 @@ const int NUM_STEPS_ALPHA=20;
 
 const double THETA_MAX=2*M_PI;
 
-const double ALPHA_MAX=acos(EARTH_RADIUS/SAT_Y_POSITION); //returning NAN, not a number...
+const double ALPHA_MAX=acos(EARTH_RADIUS/SAT_Y_POSITION);
 
-const double theta_interval=2*M_PI/NUM_STEPS_THETA;
+const double theta_interval=THETA_MAX/NUM_STEPS_THETA;
 
-const double alpha_interval=M_PI/NUM_STEPS_ALPHA;
+const double alpha_interval=ALPHA_MAX/NUM_STEPS_ALPHA;
 
 /////////////////////////////////////////////////////END CONSTANT DEFINITIONS
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, doub
 
 bool returnValidPointInRelationToSun (double alpha, double theta) //returns whether a point
 {
-    double x=EARTH_RADIUS*cos(theta)*sin(alpha);
+    double x=EARTH_RADIUS*cos(theta)*sin(alpha); //just translating from cartesian to spherical.
     double y=EARTH_RADIUS*sin(theta)*sin(alpha);
     double z=EARTH_RADIUS*cos(alpha);
     
