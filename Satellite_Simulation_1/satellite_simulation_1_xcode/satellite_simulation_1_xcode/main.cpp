@@ -98,7 +98,7 @@ double returnAngleBetweenTwoVectors(double X, double Y, double Z, double X0, dou
     double MAG_1=pow( (pow(X,2) + pow(Y,2)  + pow(Z,2)) ,  .5);
     double MAG_2=pow( (pow(X0,2) + pow(Y0,2)  + pow(Z0,2)) ,  .5);
     double DOT_PROD=X*X0+Y*Y0+Z*Z0;
-    return MAG_1*MAG_2/DOT_PROD;
+    return acos(DOT_PROD/(MAG_1*MAG_2));
 }
 
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0)    {
@@ -115,7 +115,7 @@ bool returnValidPointInRelationToSun (double BETA, double theta) //returns wheth
     
     double ACTUAL_DISTANCE=returnDistanceBetweenPoints(x, y, z, SUN_X, SUN_Y, SUN_Z);
     
-    return (  MAX_ACCEPTABLE_DISTANCE   > ACTUAL_DISTANCE );
+    return (MAX_ACCEPTABLE_DISTANCE > ACTUAL_DISTANCE);
 }
 
 double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SAT_Z_PARAM,double SUN_X_PARAM, double SUN_Y_PARAM, double SUN_Z_PARAM, double albedo_PARAM)    { //function that simply iterates over a square, and calculates sunlight effect accordinly...
@@ -172,8 +172,8 @@ int main ()
 {
     //Alter the below params to change the setup for the flux result.
     double SAT_X_PARAM=0;
-    double SAT_Y_PARAM=0;
-    double SAT_Z_PARAM=160000+EARTH_RADIUS;
+    double SAT_Y_PARAM=160000+EARTH_RADIUS;
+    double SAT_Z_PARAM=0;
     double SUN_X_PARAM=0;
     double SUN_Y_PARAM=0;
     double SUN_Z_PARAM=150*pow(10,9);
