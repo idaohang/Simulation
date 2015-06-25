@@ -19,7 +19,7 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////CONSTANT DEFINITIONS:
 
-//(all units in meters)
+//units defined in SI
 
 //Satellite is centered {0,0,0}
 
@@ -27,21 +27,23 @@ using namespace std;
 
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0);
 
-//Sun position, cartesian coordinates.
+//THESE VARIABLES ARE SET IN MAIN...///
 double SUN_X;
 double SUN_Y;
 double SUN_Z;
 
+double SAT_X_POSITION;
+double SAT_Y_POSITION;
+double SAT_Z_POSITION;
+
+double albedo;
+///////////////////////////////////////
+
 const double EARTH_RADIUS=6371000;
-
-double SAT_X_POSITION=35786000+EARTH_RADIUS;
-double SAT_Y_POSITION=0; //distance above the center of the earth (wiki, typical satellite)
-double SAT_Z_POSITION=0;
-
-double albedo=.8;
 
 const double e=1-albedo; //emmisivity
 
+#warning TODO replace with Satellite area...
 const double Ac=1.0;
 
 double MAX_ACCEPTABLE_DISTANCE;
@@ -49,7 +51,7 @@ double MAX_ACCEPTABLE_DISTANCE;
 #warning Sumeet has a better expression for this...
 const double E_s=120; //wiki (W/m^2)
 
-const double M_b=E_s/4;
+const double M_b=E_s/4; //As derived in the paper.
 
 const int NUM_STEPS_THETA=20;
 
@@ -162,8 +164,7 @@ int main ()
     double albedo_PARAM=.8;
     
     double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
-     cout << result << endl;
-    
+    cout << result << endl;
     
 //    //ToCheck the above function, let's run a for loop that simulates if the earth and satellite didn't move but the sun rose and set...
 //    
@@ -191,7 +192,7 @@ int main ()
 //        myfile << result;
 //        myfile << "\n";
 //        myfile.close();
-    }
+   // }
     
     //    double answer = runForLoop();
     //    cout << "Result: " << answer;
