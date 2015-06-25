@@ -28,17 +28,17 @@ using namespace std;
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0);
 
 //Sun position, cartesian coordinates.
-const double SUN_X=0;
-const double SUN_Y=0;
-const double SUN_Z=150*pow(10,9); //150 million kilometers is 150 billion meters
+double SUN_X;
+double SUN_Y;
+double SUN_Z;
 
 const double EARTH_RADIUS=6371000;
 
-const double SAT_X_POSITION=35786000+EARTH_RADIUS;
-const double SAT_Y_POSITION=0; //distance above the center of the earth (wiki, typical satellite)
-const double SAT_Z_POSITION=0;
+double SAT_X_POSITION=35786000+EARTH_RADIUS;
+double SAT_Y_POSITION=0; //distance above the center of the earth (wiki, typical satellite)
+double SAT_Z_POSITION=0;
 
-const double albedo=.8;
+double albedo=.8;
 
 const double e=1-albedo; //emmisivity
 
@@ -109,7 +109,16 @@ bool returnValidPointInRelationToSun (double alpha, double theta) //returns whet
     return (  MAX_ACCEPTABLE_DISTANCE   > ACTUAL_DISTANCE );
 }
 
-double runForLoop()    { //function that simply iterates over a square, and calculates sunlight effect accordinly...
+double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SAT_Z_PARAM,double SUN_X_PARAM, double SUN_Y_PARAM, double SUN_Z_PARAM, double albedo_PARAM)    { //function that simply iterates over a square, and calculates sunlight effect accordinly...
+    
+    //asign parameters as global variables.
+    SAT_X_POSITION=SAT_X_PARAM;
+    SAT_Y_POSITION=SAT_Y_PARAM;
+    SAT_Z_POSITION=SAT_Z_PARAM;
+    SUN_X=SUN_X_PARAM;
+    SUN_Y=SUN_Y_PARAM;
+    SUN_Z=SUN_Z_PARAM;
+    albedo=albedo_PARAM;
     
     double SUN_POSITION_ABOVE_EARTH=returnDistanceBetweenPoints(0, 0, 0, SUN_X, SUN_Y, SUN_Z);
     
@@ -143,19 +152,36 @@ double runForLoop()    { //function that simply iterates over a square, and calc
 
 int main ()
 {
-    double answer = runForLoop();
-    cout << "Result: " << answer;
+    //Alter the below params to change the setup for the flux result.
+    double SAT_X_PARAM=0;
+    double SAT_Y_PARAM=0;
+    double SAT_Z_PARAM=160000+EARTH_RADIUS;
+    double SUN_X_PARAM=0;
+    double SUN_Y_PARAM=0;
+    double SUN_Z_PARAM=150*pow(10,9);
+    double albedo_PARAM=.8;
     
-    ofstream myfile;
-    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
-    if (!myfile.is_open()){
-        cerr << "Fail to open output file\n";
-        exit(EXIT_FAILURE);
-    }
-    myfile << answer;
-    myfile << "\n";
-    myfile.flush();
-    myfile.close();
+    double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
+    cout << result << endl;
+    
+//    //let's iterate through some values of the sun to check ...
+//    
+//    double x=150*pow(10,9); //sun starts out on the horizon.
+//    double x_final
+//    
+//    double answer = runForLoop();
+//    cout << "Result: " << answer;
+//    
+//    ofstream myfile;
+//    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
+//    if (!myfile.is_open()){
+//        cerr << "Fail to open output file\n";
+//        exit(EXIT_FAILURE);
+//    }
+//    myfile << answer;
+//    myfile << "\n";
+//    myfile.flush();
+//    myfile.close();
 }
 
 
