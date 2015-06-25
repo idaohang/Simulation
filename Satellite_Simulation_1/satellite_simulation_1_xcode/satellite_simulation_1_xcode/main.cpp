@@ -22,16 +22,22 @@ using namespace std;
 
 //Satellite is centered {0,0,0}
 
+//Function headers
+
+double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0);
+
 //Sun position, cartesian coordinates.
 const double SUN_X=0;
 const double SUN_Y=0;
-const double SUN_Z=150*pow(10,9);
+const double SUN_Z=150*pow(10,9); //150 million kilometers is 150 billion meters
 
 //Satellite position is directly above origin... (SAT_Y_POSITION)
 
 const double EARTH_RADIUS=6371000;
 
-const double SAT_Y_POSITION=35786000+EARTH_RADIUS; //distance above the center of the earth (wiki, typical satellite)
+const double SAT_X_POSITION=0;
+const double SAT_Y_POSITION=0; //distance above the center of the earth (wiki, typical satellite)
+const double SAT_Z_POSITION=35786000+EARTH_RADIUS;
 
 const double albedo=.8;
 
@@ -41,6 +47,7 @@ const double Ac=1.0;
 
 double MAX_ACCEPTABLE_DISTANCE;
 
+#warning Sumeet has a better expression for this...
 const double E_s=120; //wiki (W/m^2)
 
 const double M_b=E_s/4;
@@ -51,7 +58,7 @@ const int NUM_STEPS_ALPHA=20;
 
 const double THETA_MAX=2*M_PI;
 
-const double ALPHA_MAX=acos(EARTH_RADIUS/SAT_Y_POSITION);
+const double ALPHA_MAX=acos(EARTH_RADIUS/returnDistanceBetweenPoints(0, 0, 0, SAT_X_POSITION, SAT_Y_POSITION, SAT_Z_POSITION));
 
 const double theta_interval=THETA_MAX/NUM_STEPS_THETA;
 
@@ -60,24 +67,30 @@ const double alpha_interval=ALPHA_MAX/NUM_STEPS_ALPHA;
 /////////////////////////////////////////////////////END CONSTANT DEFINITIONS
 //////////////////////////////////////////////////////////////////////////
 
+//FUNCTIONS
 double magnitudeOfVector (double x, double y, double z)  {
     return pow( (pow(x,2) + pow(y,2) + pow(z,2)) ,  .5);
 }
 
-double sunAngle()  { //dot product.
-    double SUN_VECTOR_MAG=magnitudeOfVector(SUN_X,SUN_Y,SUN_Z);
-    double OTHER_VECTOR_MAG=1; //unit vector pointing to the satellite; leaving this here for bookeeping.
-    double sunAngle=acos(SUN_Z/(SUN_VECTOR_MAG*OTHER_VECTOR_MAG));
-    return sunAngle;
-}
-
-double returnRForAlpha(double alpha)   { //defined in a diagram made by djax
-        return pow(   pow(SAT_Y_POSITION-EARTH_RADIUS*cos(alpha),2)+  pow(EARTH_RADIUS*sin(alpha),2)       ,.5);
+double returnSunAngleForAreaElementAt(double alpha, double theta)  { //this is the angle between the sun and the normal to the earth element.
+    double x=EARTH_RADIUS*cos(theta)*sin(alpha); //just translating from cartesian to spherical.
+    double y=EARTH_RADIUS*sin(theta)*sin(alpha);
+    double z=EARTH_RADIUS*cos(alpha);
+    
+    //use dot product
+    double denom=magnitudeOfVector(x, y, z)*magnitudeOfVector(SUN_X, SUN_Y, SUN_Z);
+    double angle=acos((x*SUN_X+y*SUN_Y+z*SUN_Z)/denom);
+    return angle;
 }
 
 double calculateSunlightEffect(double alpha, double theta) { //related math in djax notes...
-    double r = returnRForAlpha(alpha); //as defined in djax notes.
-    return (albedo*E_s*cos(sunAngle())+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*alpha_interval; //this is an approximation for our area, using dA=d_alpha*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
+    double x=EARTH_RADIUS*cos(theta)*sin(alpha); //just translating from cartesian to spherical.
+    double y=EARTH_RADIUS*sin(theta)*sin(alpha);
+    double z=EARTH_RADIUS*cos(alpha);
+    
+    double r = returnDistanceBetweenPoints(x, y, z, SAT_X_POSITION, SAT_Y_POSITION, SAT_Z_POSITION);  //distance between area element and the satellite.
+    
+    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(alpha,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*alpha_interval; //this is an approximation for our area, using dA=d_alpha*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
 }
 
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0)    {
@@ -112,9 +125,10 @@ double runForLoop()    { //function that simply iterates over a square, and calc
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
-            //round the corners of the for loop
+            double alpha_new=alpha+alpha_interval/2; //approximating the centroid.
+            double theta_new=theta+theta_interval/2;
             
-            if (returnValidPointInRelationToSun(alpha,theta))  {
+            if (returnValidPointInRelationToSun(alpha_new,theta_new))  {
                 //calculate the z position for this discrete piece
                 
                 double dFLUX;
@@ -134,7 +148,11 @@ int main ()
     cout << "Result: " << answer;
 }
 
-//Optimizations are going to be a critical way to make our program more efficient. Here we define several functions that allow us to disregard
+//TODO movement of sun...
+
+//Optimizations are going to be a critical way to make our program more efficient. In this sections, I hope to add inteligent optimizations.
+
+//End optimizations.
 
 
 
