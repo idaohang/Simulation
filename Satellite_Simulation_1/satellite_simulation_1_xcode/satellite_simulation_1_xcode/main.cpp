@@ -31,13 +31,11 @@ const double SUN_X=0;
 const double SUN_Y=0;
 const double SUN_Z=150*pow(10,9); //150 million kilometers is 150 billion meters
 
-//Satellite position is directly above origin... (SAT_Y_POSITION)
-
 const double EARTH_RADIUS=6371000;
 
-const double SAT_X_POSITION=0;
+const double SAT_X_POSITION=35786000+EARTH_RADIUS;
 const double SAT_Y_POSITION=0; //distance above the center of the earth (wiki, typical satellite)
-const double SAT_Z_POSITION=35786000+EARTH_RADIUS;
+const double SAT_Z_POSITION=0;
 
 const double albedo=.8;
 
