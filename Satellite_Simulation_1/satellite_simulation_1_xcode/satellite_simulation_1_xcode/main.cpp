@@ -6,13 +6,14 @@
 //  Copyright (c) 2015 DJackson. All rights reserved.
 //
 
-//The simulation simulates sunlight hitting a satellite. All relative math is detailed in a paper written by P. C. Knocke *, J. C. Ries, and B. D. Tapley, Center for Space Research, The University of Texas at Austin, Austin, Texas.
+//The simulation simulates sunlight bouncing off the earth and then hitting a satellite. All relative math is detailed in a paper written by P. C. Knocke *, J. C. Ries, and B. D. Tapley, Center for Space Research, The University of Texas at Austin, Austin, Texas.
 
 //For a list of assumptions read that paper. Definitions of constants are defined here.
 
 // function example
 #include <iostream>
 #include <math.h>       /* pow */
+#include <fstream>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,7 +145,20 @@ int main ()
 {
     double answer = runForLoop();
     cout << "Result: " << answer;
+    
+    ofstream myfile;
+    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
+    if (!myfile.is_open()){
+        cerr << "Fail to open output file\n";
+        exit(EXIT_FAILURE);
+    }
+    myfile << answer;
+    myfile << "\n";
+    myfile.flush();
+    myfile.close();
 }
+
+
 
 //TODO movement of sun...
 
