@@ -44,18 +44,18 @@ const double EARTH_RADIUS=6371000;
 const double e=1-albedo; //emmisivity
 
 #warning TODO replace with Satellite area...
-const double Ac=1.0;
+const double Ac=.5;
 
 double MAX_ACCEPTABLE_DISTANCE;
 
 #warning Sumeet has a better expression for this...
-const double E_s=1400; //wiki (W/m^2)
+const double E_s=1360; //wiki (W/m^2)
 
 const double M_b=E_s/4; //As derived in the paper.
 
-const int NUM_STEPS_THETA=20;
+const int NUM_STEPS_THETA=50;
 
-const int NUM_STEPS_beta=20;
+const int NUM_STEPS_beta=50;
 
 double THETA_MAX;
 
@@ -91,7 +91,9 @@ double calculateSunlightEffect(double beta, double theta) {
     //Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
     double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
     
-    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)*theta_interval*beta_interval; //this is an approximation for our area, using dA=d_beta*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
+    double areaEarthElement=pow(EARTH_RADIUS,2)*sin(theta)*theta_interval*beta_interval;
+    
+    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)* areaEarthElement; //this is an approximation for our area, using dA=d_beta*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
 }
 
 double returnAngleBetweenTwoVectors(double X, double Y, double Z, double X0, double Y0, double Z0) {
@@ -151,10 +153,8 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
-            double beta_new=beta+beta_interval/2; //approximating the centroid.
-            double theta_new=theta+theta_interval/2;
             
-            if (returnValidPointInRelationToSun(beta_new,theta_new))  {
+            if (returnValidPointInRelationToSun(beta,theta))  {
                 //calculate the z position for this discrete piece
                 
                 double dFLUX;
@@ -171,16 +171,81 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
 int main ()
 {
     //Alter the below params to change the setup for the flux result.
-    double SAT_X_PARAM=0;
-    double SAT_Y_PARAM=160000+EARTH_RADIUS;
-    double SAT_Z_PARAM=0;
-    double SUN_X_PARAM=0;
-    double SUN_Y_PARAM=0;
-    double SUN_Z_PARAM=150*pow(10,9);
-    double albedo_PARAM=.8;
     
-    double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
-    cout << result << endl;
+    double SUN_X_PARAM=3.581118709561659*pow(10,10);
+    double SUN_Y_PARAM=-1.308927327368016*pow(10,11);
+    double SUN_Z_PARAM=-5.677199113568006*pow(10,10);
+    double albedo_PARAM=.3;
+    
+    //reading in the file:
+    ifstream infile;
+    
+    string read_file_name("satPositions.txt");
+    
+    infile.open(read_file_name);
+    
+    string sLine;
+    
+    int counter=0;
+    
+    double SAT_X_PARAM;
+    double SAT_Y_PARAM;
+    double SAT_Z_PARAM;
+    
+    ofstream myfile;
+    myfile.open("outputFluxes.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
+    if (!myfile.is_open()){
+        cerr << "Fail to open output file\n";
+        exit(EXIT_FAILURE);
+    }
+    
+    while (!infile.eof())
+    {
+        infile >> sLine;
+        //        cout << sLine.data() << endl;
+        
+        counter++;
+        
+        if (counter==1)   {
+            SAT_X_PARAM=atof(sLine.data());
+        }
+        
+        if (counter==2)   {
+            SAT_Y_PARAM=atof(sLine.data());
+        }
+        
+        if (counter==3)   {
+            SAT_Z_PARAM=atof(sLine.data());
+            counter=0;
+            
+            //Before we run our simulation, we need to reorient our axes.
+            //The satellite need to be on the vertical axis (since this is how we iterate alpha/theta)
+            //Thus:
+            SAT_Z_PARAM=magnitudeOfVector(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM);
+            SAT_X_PARAM=0;
+            SAT_Y_PARAM=0;
+            
+            //We must also adjust the Sun parameter as well.
+            
+            
+            
+            
+            
+            
+            
+            double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
+            
+            myfile << result;
+            myfile << "\n";
+            
+            cout << result << endl;
+        }
+        
+    }
+    
+    myfile.flush();
+    myfile.close();
+    infile.close();
     
     //    //ToCheck the above function, let's run a for loop that simulates if the earth and satellite didn't move but the sun rose and set...
     //
