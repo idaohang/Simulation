@@ -49,7 +49,7 @@ const double Ac=1.0;
 double MAX_ACCEPTABLE_DISTANCE;
 
 #warning Sumeet has a better expression for this...
-const double E_s=120; //wiki (W/m^2)
+const double E_s=1400; //wiki (W/m^2)
 
 const double M_b=E_s/4; //As derived in the paper.
 
@@ -80,7 +80,7 @@ double returnSunAngleForAreaElementAt(double beta, double theta)  { //this is th
     return returnAngleBetweenTwoVectors(x, y, z, SUN_X, SUN_Y, SUN_Z);
 }
 
-double calculateSunlightEffect(double beta, double theta) { //related math in djax notes...
+double calculateSunlightEffect(double beta, double theta) {
     double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
     double y=EARTH_RADIUS*sin(theta)*sin(beta);
     double z=EARTH_RADIUS*cos(beta);
@@ -107,7 +107,7 @@ double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, doub
     return distance;
 }
 
-bool returnValidPointInRelationToSun (double beta, double theta) //returns whether a point
+bool returnValidPointInRelationToSun (double beta, double theta) //returns whether a point is with the area seen by the sun. (We're iterating over common area between the satellite and the sun)
 {
     double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
     double y=EARTH_RADIUS*sin(theta)*sin(beta);
@@ -129,7 +129,7 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     SUN_Z=SUN_Z_PARAM;
     albedo=albedo_PARAM;
     
-    //We use the imput params to determine a few other global constants.
+    //We use the input params to determine a few other global constants.
     THETA_MAX=2*M_PI;
     
     BETA_MAX=acos(EARTH_RADIUS/returnDistanceBetweenPoints(0, 0, 0, SAT_X, SAT_Y, SAT_Z));
