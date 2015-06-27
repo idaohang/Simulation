@@ -23,10 +23,20 @@ using namespace std;
 
 //Satellite is centered {0,0,0}
 
+//class types:
+class vec
+{
+public:
+    float x, y, z;
+};
+
 //Function headers
 
 double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, double Y0, double Z0);
 double returnAngleBetweenTwoVectors(double X, double Y, double Z, double X0, double Y0, double Z0);
+void setUpRotationMatrix(float angle, float u, float v, float w);
+void multiplyMatrix();
+vec crossproduct(double Ax, double Ay, double Az, double Bx, double By, double Bz);
 //THESE VARIABLES ARE SET IN MAIN...///
 double SUN_X;
 double SUN_Y;
@@ -64,6 +74,11 @@ double BETA_MAX;
 double theta_interval;
 
 double beta_interval;
+
+//For rotation matrix...
+float rotationMatrix[4][4];
+float inputMatrix[4][1] = {0.0, 0.0, 0.0, 0.0};
+float outputMatrix[4][1] = {0.0, 0.0, 0.0, 0.0};
 
 /////////////////////////////////////////////////////END CONSTANT DEFINITIONS
 //////////////////////////////////////////////////////////////////////////
@@ -220,19 +235,40 @@ int main ()
             
             //Before we run our simulation, we need to reorient our axes.
             //The satellite need to be on the vertical axis (since this is how we iterate alpha/theta)
-            //Thus:
-            SAT_Z_PARAM=magnitudeOfVector(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM);
-            SAT_X_PARAM=0;
-            SAT_Y_PARAM=0;
+            //Rotation matrix code is forked from: http://www.programming-techniques.com/2012/03/3d-rotation-algorithm-about-arbitrary.html
             
-            //We must also adjust the Sun parameter as well.
+
+            float angle=returnAngleBetweenTwoVectors(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, 0, 0, 1);
+            float u, v, w;
             
+            inputMatrix[0][0] = SAT_X_PARAM; //rotating the Satellite matrix.
+            inputMatrix[1][0] = SAT_Y_PARAM;
+            inputMatrix[2][0] = SAT_Z_PARAM;
+            inputMatrix[3][0] = 1.0;
             
+            vec vect=crossproduct(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, 0, 0, 1);
+            u=vect.x;
+            v=vect.y;
+            w=vect.z;
             
+            setUpRotationMatrix(angle, u, v, w);
+            multiplyMatrix();
             
+            SAT_X=outputMatrix[0][0];
+            SAT_Y=outputMatrix[1][0];
+            SAT_Z=outputMatrix[2][0];
             
+            inputMatrix[0][0] = SUN_X_PARAM;
+            inputMatrix[1][0] = SUN_Y_PARAM;
+            inputMatrix[2][0] = SUN_Z_PARAM;
+            inputMatrix[3][0] = 1.0;
             
-            
+            setUpRotationMatrix(angle, u, v, w); //do the same procedure with the sun.
+            multiplyMatrix();
+            SUN_X=outputMatrix[0][0];
+            SUN_Y=outputMatrix[1][0];
+            SUN_Z=outputMatrix[2][0];
+
             double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
             
             myfile << result;
@@ -246,50 +282,56 @@ int main ()
     myfile.flush();
     myfile.close();
     infile.close();
-    
-    //    //ToCheck the above function, let's run a for loop that simulates if the earth and satellite didn't move but the sun rose and set...
-    //
-    //    //    //let's iterate through some values of the sun to check ...
-    //    //
-    //    double x_initial=150*pow(10,9); //sun starts out on the horizon.
-    //    double x_final=-150*pow(10,9);
-    //    int NUM_STEPS=20;
-    //    double sun_interval=fabs((x_final-x_initial)/NUM_STEPS);
-    //
-    //    ofstream myfile;
-    //    myfile.open("outPutFile", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
-    //    if (!myfile.is_open()) {
-    //        cerr << "Fail to open output file\n";
-    //        exit(EXIT_FAILURE);
-    //    }
-    //
-    //    for(double SUN_X = x_initial; SUN_X > x_final; SUN_X = SUN_X - sun_interval)
-    //    {
-    //        //we're not varying y, so we don't need to worry about that
-    //        //we have to calculate our z value.
-    //        double Z_Pos=pow( pow(150*pow(10,9),2) - pow(SUN_X,2) , .5 );
-    //        double result=returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X, 0, Z_Pos, albedo_PARAM);
-    //
-    //        myfile << result;
-    //        myfile << "\n";
-    //        myfile.close();
-    // }
-    
-    //    double answer = runForLoop();
-    //    cout << "Result: " << answer;
-    //
-    //    ofstream myfile;
-    //    myfile.open("example.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
-    //    if (!myfile.is_open()){
-    //        cerr << "Fail to open output file\n";
-    //        exit(EXIT_FAILURE);
-    //    }
-    //    myfile << answer;
-    //    myfile << "\n";
-    //    myfile.flush();
-    //    myfile.close();
 }
 
+void multiplyMatrix()
+{
+    for(int i = 0; i < 4; i++ ){
+        for(int j = 0; j < 1; j++){
+            outputMatrix[i][j] = 0;
+            for(int k = 0; k < 4; k++){
+                outputMatrix[i][j] += rotationMatrix[i][k] * inputMatrix[k][j];
+            }
+        }
+    }
+}
+void setUpRotationMatrix(float angle, float u, float v, float w)
+{
+    float L = (u*u + v * v + w * w);
+    angle = angle * M_PI / 180.0; //converting to radian value
+    float u2 = u * u;
+    float v2 = v * v;
+    float w2 = w * w;
+    
+    rotationMatrix[0][0] = (u2 + (v2 + w2) * cos(angle)) / L;
+    rotationMatrix[0][1] = (u * v * (1 - cos(angle)) - w * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[0][2] = (u * w * (1 - cos(angle)) + v * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[0][3] = 0.0;
+    
+    rotationMatrix[1][0] = (u * v * (1 - cos(angle)) + w * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[1][1] = (v2 + (u2 + w2) * cos(angle)) / L;
+    rotationMatrix[1][2] = (v * w * (1 - cos(angle)) - u * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[1][3] = 0.0;
+    
+    rotationMatrix[2][0] = (u * w * (1 - cos(angle)) - v * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[2][1] = (v * w * (1 - cos(angle)) + u * sqrt(L) * sin(angle)) / L;
+    rotationMatrix[2][2] = (w2 + (u2 + v2) * cos(angle)) / L;
+    rotationMatrix[2][3] = 0.0;
+    
+    rotationMatrix[3][0] = 0.0;
+    rotationMatrix[3][1] = 0.0;
+    rotationMatrix[3][2] = 0.0;
+    rotationMatrix[3][3] = 1.0;
+}
+
+vec crossproduct(double Ax, double Ay, double Az, double Bx, double By, double Bz)
+{
+    vec vector;
+    vector.x = (Ay*Bz)-(By*Az);
+    vector.y = -(Ax*Bz)+(Bx*Az);
+    vector.z = (Ax*By)-(Ay*Bx);
+    return vector;
+}
 
 
 //TODO movement of sun...
