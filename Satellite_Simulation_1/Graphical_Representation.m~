@@ -1,0 +1,165 @@
+%This program is meant to provide a graphical representation of what's
+%going on in the C++ flux calculator5. I'm using
+%this as a graphical representation of what's going on in the other
+%program.
+clc;
+clear all;
+close all;
+EARTH_RADIUS=6371000;
+
+NUM_STEPS_BETA=100;
+NUM_STEPS_THETA=100;
+
+SUN_X=3.581118709561659*10^10;
+SUN_Y=-1.308927327368016*10^11;
+SUN_Z=-5.677199113568006*10^10;
+
+SAT_X=0;
+SAT_Y=0;
+SAT_Z=0;
+
+%read in the satellite positions.
+% fid = fopen('satPositions.txt');
+% counter=0;
+% lineCounter=1;
+
+fileID = fopen('satPositions.txt','r');
+% formatSpec = '%s';
+
+tline = fgets(fileID);
+while ischar(tline)
+    disp(tline);
+    tline=strtrim(tline);
+    %break up the line by spaces into an array...
+    stringsArray = strsplit(tline,' ');
+    
+    %Now we have an array that contains three strings...We have to consider
+    %the specific formatting of the 
+    
+    tline = fgets(fileID);
+end
+
+% sizeA = [1 Inf];
+% A = fscanf(fileID,formatSpec,sizeA)
+% fclose(fileID);
+% 
+% %     figure;
+% pos = fscanf(fid,'%s',4000000);
+% lineCounter=lineCounter+1;
+
+% C = strsplit(pos,'+');
+% first_cell=C(1);
+% first_string=first_cell{1,1};
+% first_string=first_string(1:end-1);
+% first_num=str2num(first_string);
+% 
+% second_cell=C(2);
+% second_string=second_cell{1,1};
+% second_num=str2num(second_string);
+% 
+% pos=first_num*10^second_num;
+% 
+% counter=counter+1;
+% 
+% if (mod(counter,3)==1)
+%     SAT_X=pos;
+% elseif (mod(counter,3)==2)
+%     SAT_Y=pos;
+% elseif (mod(counter,3)==0)
+%     SAT_Z=pos;
+%     
+%     counter=0;
+%     
+%     %Now plot the sphere that represents the earth.
+%     
+%     for alpha=0:.5:pi/2
+%         for theta=0:.5:2*pi
+%             x=EARTH_RADIUS*sin(alpha)*cos(theta);
+%             y=EARTH_RADIUS*sin(alpha)*sin(theta);
+%             z=EARTH_RADIUS*cos(alpha);
+%             
+%             DISTANCE_FROM_EARTH_CENTER_TO_SAT=(SAT_X^2+SAT_Y^2+SAT_Z^2)^.5;
+%             DISTANCE_FROM_EARTH_CENTER_TO_SUN=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
+%             
+%             
+%             MAX_SUN_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SAT);
+%             MAX_SAT_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SUN);
+%             
+%             MAX_DISTANCE_TO_SATELLITE=EARTH_RADIUS*sin(MAX_SUN_ANGLE);
+%             MAX_DISTANCE_TO_SUN=EARTH_RADIUS*sin(MAX_SAT_ANGLE);
+%             
+%             ACTUAL_DISTANCE_TO_SATELLITE=((x-SAT_X)^2+(y-SAT_Y)^2+(z-SAT_Z)^2)^.5;
+%             ACTUAL_DISTANCE_TO_SUN=((x-SUN_X)^2+(y-SUN_Y)^2+(z-SUN_Z)^2)^.5;
+%             
+%             if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
+%                 %visible to both satellite and the sun.
+%                 scatter3(x,y,z,'red')
+%                 hold on;
+%                 scatter3(x,-y,-z,'red')
+%             elseif ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
+%                 scatter3(x,y,z,'cyan')
+%                 hold on;
+%                 scatter3(x,y,-z,'cyan')
+%             elseif ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
+%                 scatter3(x,y,z,'blue')
+%                 hold on;
+%                 scatter3(x,-y,-z,'blue')
+%             else % not visible to the sun or the satellite
+%                 scatter3(x,y,z,'black')
+%                 hold on;
+%                 scatter3(x,-y,-z,'black')
+%                 
+%             end
+%             hold on;
+%             
+%         end
+%     end
+%     
+%     %we've seen one snapshot in time... now, remove the graph
+%     
+%     
+% end
+% 
+% 
+% pause(2)
+% close all;
+% 
+% 
+% fclose(fid)
+
+% for m=i:length()
+
+
+%
+% SAT_X=
+% SAT_Y=
+% SAT_Z=
+%
+% for beta=0:NUM_STEPS_BETA
+%     for theta=0:NUM_STEPS_THETA
+%         x=EARTH_RADIUS*cos(theta)*sin(beta);
+%         y=EARTH_RADIUS*sin(theta)*sin(beta);
+%         z=EARTH_RADIUS*cos(beta);
+%
+%         MAX_DISTANCE_TO_SATELLITE=
+%         MAX_DISTANCE_TO_SUN=
+%
+%         ACTUAL_DISTANCE_TO_SATELLITE=
+%         ACTUAL_DISTANCE_TO_SUN=
+%
+%         if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
+%            %visible to both satellite and the sun.
+%             scatter3(x,y,z,'red')
+%             scatter3(x,-y,z,'red')
+%         else if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
+%             scatter3(x,y,z,'cyan')
+%             scatter3(x,-y,z,'cyan')
+%         else if ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
+%             scatter3(x,y,z,'blue')
+%             scatter3(x,-y,z,'blue')
+%         else % not visible to the sun or the satellite
+%             scatter3(x,y,z,'black')
+%             scatter3(x,-y,z,'black')
+%         end
+%     end
+% end

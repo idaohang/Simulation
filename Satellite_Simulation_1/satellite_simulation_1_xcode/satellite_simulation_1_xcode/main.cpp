@@ -63,9 +63,9 @@ const double E_s=1360; //wiki (W/m^2)
 
 const double M_b=E_s/4; //As derived in the paper.
 
-const int NUM_STEPS_THETA=50;
+const int NUM_STEPS_THETA=20;
 
-const int NUM_STEPS_beta=50;
+const int NUM_STEPS_beta=20;
 
 double THETA_MAX;
 
@@ -168,7 +168,7 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
-            
+
             if (returnValidPointInRelationToSun(beta,theta))  {
                 //calculate the z position for this discrete piece
                 
@@ -210,7 +210,7 @@ int main ()
     ofstream myfile;
     myfile.open("outputFluxes.txt", std::ofstream::out | std::ofstream::trunc); //open and delete the previous contents of the file from past simulation runs...
     if (!myfile.is_open()){
-        cerr << "Fail to open output file\n";
+        cerr << "Failed to open output file\n";
         exit(EXIT_FAILURE);
     }
     
@@ -236,16 +236,16 @@ int main ()
             //Before we run our simulation, we need to reorient our axes.
             //The satellite need to be on the vertical axis (since this is how we iterate alpha/theta)
             //Rotation matrix code is forked from: http://www.programming-techniques.com/2012/03/3d-rotation-algorithm-about-arbitrary.html
-            
 
             float angle=returnAngleBetweenTwoVectors(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, 0, 0, 1);
+           
             float u, v, w;
             
             inputMatrix[0][0] = SAT_X_PARAM; //rotating the Satellite matrix.
             inputMatrix[1][0] = SAT_Y_PARAM;
             inputMatrix[2][0] = SAT_Z_PARAM;
             inputMatrix[3][0] = 1.0;
-            
+
             vec vect=crossproduct(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, 0, 0, 1);
             u=vect.x;
             v=vect.y;
@@ -270,13 +270,10 @@ int main ()
             SUN_Z=outputMatrix[2][0];
 
             double result= returnFluxForParameters(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, SUN_X_PARAM, SUN_Y_PARAM, SUN_Z_PARAM, albedo_PARAM);
-            
             myfile << result;
             myfile << "\n";
-            
             cout << result << endl;
         }
-        
     }
     
     myfile.flush();
@@ -298,7 +295,6 @@ void multiplyMatrix()
 void setUpRotationMatrix(float angle, float u, float v, float w)
 {
     float L = (u*u + v * v + w * w);
-    angle = angle * M_PI / 180.0; //converting to radian value
     float u2 = u * u;
     float v2 = v * v;
     float w2 = w * w;
