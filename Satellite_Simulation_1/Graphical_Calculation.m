@@ -86,7 +86,9 @@ function main
                     %Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
                     %double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
     
-                    areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+%                   areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+                    
+                    areaEarthElement=EARTH_RADIUS^2*INTERVAL_THETA*INTERVAL_BETA; %ask sumeet if this approx is okay...
     
                     a=[x,y,z];
                     b=[SUN_X,SUN_Y,SUN_Z]

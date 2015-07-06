@@ -7,7 +7,11 @@ function main
     clear all;
     close all;
     EARTH_RADIUS=6371000;
-    albedo=
+    albedo=.3;
+    E_s=1360;
+    e=1-albedo;
+    M_b=E_s/4;
+    Ac=.5;
     
     SUN_ORIGINAL_X=3.581118709561659*10^10;
     SUN_ORIGINAL_Y=-1.308927327368016*10^11;
@@ -82,13 +86,15 @@ function main
                     %Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
                     %double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
     
-                    areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+%                   areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+                    
+                    areaEarthElement=EARTH_RADIUS^2*INTERVAL_THETA*INTERVAL_BETA; %ask sumeet if this approx is okay...
     
                     a=[x,y,z];
                     b=[SUN_X,SUN_Y,SUN_Z]
                     sunAngle = atan2(norm(cross(a,b)),dot(a,b));
                     
-                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)* areaEarthElement;
+                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement;
                     
                     NET_FLUX=NET_FLUX+dflux;
                     
@@ -103,7 +109,7 @@ function main
             end
         end
 
-        title(srcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX)));
+        title(strcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX)));
         tline = fgets(fileID);
         xlabel('x (meters)');
         ylabel('y (meters)');
