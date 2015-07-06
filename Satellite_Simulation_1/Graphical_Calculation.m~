@@ -7,20 +7,22 @@ function main
     clear all;
     close all;
     EARTH_RADIUS=6371000;
-
-    SUN_X=3.581118709561659*10^10;
-    SUN_Y=-1.308927327368016*10^11;
-    SUN_Z=-5.677199113568006*10^10;
-
+    albedo=
+    
+    SUN_ORIGINAL_X=3.581118709561659*10^10;
+    SUN_ORIGINAL_Y=-1.308927327368016*10^11;
+    SUN_ORIGINAL_Z=-5.677199113568006*10^10;
+   
     SAT_X=0;
     SAT_Y=0;
     SAT_Z=0;
-
+    
     fileID = fopen('satPositionsTest.txt','r');
     imageNameCounter=1;
     tline = fgets(fileID);
+    
     while ischar(tline)
-
+        
         tline=strtrim(tline);
         %break up the line by spaces into an array...
         stringsArray = strsplit(tline,' ');
@@ -33,8 +35,8 @@ function main
 
         cell3=stringsArray(3);
         SAT_Z=str2num(cell3{1,1});
-
-%         [SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z]=adjustSunAndSatPositions(SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z);
+        
+        [SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_ORIGINAL_X,SUN_ORIGINAL_Y,SUN_ORIGINAL_Z);
         
         scatter3(SAT_X,SAT_Y,SAT_Z,'cyan');
         hold on;
@@ -49,13 +51,15 @@ function main
         MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SUN_ANGLE);
         
         NUM_STEPS_BETA=20;
-        NUM_STEPS_THETA=80;
+        NUM_STEPS_THETA=40;
         
         INTERVAL_BETA=MAX_SAT_ANGLE/NUM_STEPS_BETA;
         THETA_MAX=2*pi;
         INTERVAL_THETA=THETA_MAX/NUM_STEPS_THETA;
         
-        for alpha=0:INTERVAL_BETA:pi %MAX_SAT_ANGLE
+        NET_FLUX=0;
+        
+        for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
             for theta=0:INTERVAL_THETA:THETA_MAX
                 x=EARTH_RADIUS*sin(alpha)*cos(theta);
                 y=EARTH_RADIUS*sin(alpha)*sin(theta);
@@ -66,20 +70,27 @@ function main
 
                 if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
                     %visible to both satellite and the sun.
+                    
+                    %In the final version, take out the plotting, and only
+                    %calculate...
                     scatter3(x,y,z,'red');
                     
-                    %This is the case where we calculate flux...
-                    %TODO UNCOMMENT THIS SECTION AND IMPLEMENT...
-%                     double r = returnDistanceBetweenPoints(x, y, z, SAT_X, SAT_Y, SAT_Z);  //distance between area element and the satellite.
-%     
-%                     %We have been using the variable beta to denote the limits of our discretization.
-%                     %Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
-%                     %double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
-%     
-%                     double areaEarthElement=pow(EARTH_RADIUS,2)*sin(theta)*theta_interval*beta_interval;
-%     
-%                     dflux=(albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)* areaEarthElement;
+%                     This is the case where we calculate flux...
+                    r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
+    
+                    %We have been using the variable beta to denote the limits of our discretization.
+                    %Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
+                    %double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
+    
+                    areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+    
+                    a=[x,y,z];
+                    b=[SUN_X,SUN_Y,SUN_Z]
+                    sunAngle = atan2(norm(cross(a,b)),dot(a,b));
                     
+                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)* areaEarthElement;
+                    
+                    NET_FLUX=NET_FLUX+dflux;
                     
                 elseif ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
                     scatter3(x,y,z,'black');
@@ -89,71 +100,46 @@ function main
                     scatter3(x,y,z,'green');
                 end
                 hold on;
-
-%                 z=-z;
-% 
-%                 DISTANCE_FROM_EARTH_CENTER_TO_SAT=(SAT_X^2+SAT_Y^2+SAT_Z^2)^.5;
-%                 DISTANCE_FROM_EARTH_CENTER_TO_SUN=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
-% 
-%                 MAX_SUN_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SAT);
-%                 MAX_SAT_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SUN);
-% 
-%                 MAX_DISTANCE_TO_SATELLITE=DISTANCE_FROM_EARTH_CENTER_TO_SAT*sin(MAX_SUN_ANGLE);
-%                 MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SAT_ANGLE);
-% 
-%                 ACTUAL_DISTANCE_TO_SATELLITE=((x-SAT_X)^2+(y-SAT_Y)^2+(z-SAT_Z)^2)^.5;
-%                 ACTUAL_DISTANCE_TO_SUN=((x-SUN_X)^2+(y-SUN_Y)^2+(z-SUN_Z)^2)^.5;
-% 
-%                 if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
-%                     %visible to both satellite and the sun.
-%                     scatter3(x,y,z,'red');   
-%                 elseif ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
-%                     scatter3(x,y,z,'black');
-%                 elseif ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
-%                     scatter3(x,y,z,'yellow');
-%                 else % not visible to the sun or the satellite
-%                     scatter3(x,y,z,'green');
-%                 end
-%                 hold on;
-
             end
         end
 
+        title(srcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX)));
         tline = fgets(fileID);
         xlabel('x (meters)');
         ylabel('y (meters)');
         zlabel('z (meters)');
 
         saveas( gcf, int2str(strcat(imageNameCounter,'nonrotated')), 'jpg' );
-        imageNameCounter=imageNameCounter+1;
-        pause(2);
 
+        %no need to save images in the final version, TODO DELETE
+%         saveas( gcf, int2str(imageNameCounter), 'jpg' ); % saves the plot as image; optional...
+        imageNameCounter=imageNameCounter+1;
         close all;
     end
 end
 
-function [SAT_X0,SAT_Y0,SAT_Z0,SUN_X0,SUN_Y0,SUN_Z0]=adjustSunAndSatPositions(SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z)
-
-    %taking the cross product. %TODO CHECK ALL THIS MATH THOROUGHLY.......
-    u = (SAT_Y*1)-(0*SAT_Z);
-    v = -(SAT_X*1)+(0*SAT_Z);
-    w = (SAT_X*0)-(SAT_Y*0);
+function [SAT_X0,SAT_Y0,SAT_Z0,SUN_X0,SUN_Y0,SUN_Z0]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z)
     
-    %now calculate the angle...
+    new_z=[SAT_X,SAT_Y,SAT_Z];
+    new_z=new_z/norm(new_z);
     
-    MAG_1=(SAT_X^2 + SAT_Y^2  + SAT_Z^2) ^.5;
-    MAG_2=1;
-    DOT_PROD=SAT_X*0+SAT_Y*0+SAT_Z*1;
-    angle=acos(DOT_PROD/(MAG_1*MAG_2));
+    new_x=cross([0,0,1],new_z);
+    new_x=new_x/norm(new_x);
+    new_y=cross(new_z,new_x);
+    new_y=new_y/norm(new_y);
     
-    %   Before we run our simulation, we need to reorient our axes.
-    %   We're going to rotate our axes to make the new frame...
-    %   We must therefore construct a rotation matrix.
+    R=[new_x;new_y;new_z];
+        
+    SUN_NEW_VECTOR=R*[SUN_X;SUN_Y;SUN_Z];
+    SUN_X0=SUN_NEW_VECTOR(1,1);
+    SUN_Y0=SUN_NEW_VECTOR(2,1);
+    SUN_Z0=SUN_NEW_VECTOR(3,1);
     
-    little_z=[SAT_X,SAT_Y,SAT_Z]
-    little_
-    
-    
+    SAT_OLD=[SAT_X;SAT_Y;SAT_Z];
+    SAT_NEW_VECTOR=R*SAT_OLD;
+    SAT_X0=SAT_NEW_VECTOR(1,1);
+    SAT_Y0=SAT_NEW_VECTOR(2,1);
+    SAT_Z0=SAT_NEW_VECTOR(3,1);
 
 end
 
