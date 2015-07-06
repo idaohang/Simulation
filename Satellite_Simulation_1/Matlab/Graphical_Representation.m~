@@ -18,28 +18,28 @@ SAT_X=0;
 SAT_Y=0;
 SAT_Z=0;
 
-fileID = fopen('satPositionsTest.txt','r');
-imageNameCounter=1;
+fileID = fopen('satPositions.txt','r');
+
 tline = fgets(fileID);
 while ischar(tline)
-   
+    disp(tline);
     tline=strtrim(tline);
     %break up the line by spaces into an array...
     stringsArray = strsplit(tline,' ');
     
-    cell1=stringsArray(1);
+    cell1=stringsArray(1)
     SAT_X=str2num(cell1{1,1});
 
-    cell2=stringsArray(2);
+    cell2=stringsArray(2)
     SAT_Y=str2num(cell2{1,1});
 
-    cell3=stringsArray(3);
+    cell3=stringsArray(3)
     SAT_Z=str2num(cell3{1,1});
-    scatter3(SAT_X,SAT_Y,SAT_Z,'cyan');
+    scatter3(SAT_X,SAT_Y,SAT_Z,'cyan')
     hold on;
     
-    for alpha=0:.2:pi/2
-        for theta=0:.2:2*pi
+    for alpha=0:.05:pi/2
+        for theta=0:.05:2*pi
             x=EARTH_RADIUS*sin(alpha)*cos(theta);
             y=EARTH_RADIUS*sin(alpha)*sin(theta);
             z=EARTH_RADIUS*cos(alpha);
@@ -61,13 +61,13 @@ while ischar(tline)
             
             if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
                 %visible to both satellite and the sun.
-                scatter3(x,y,z,'red');    
+                scatter3(x,y,z,'red')    
             elseif ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
-                scatter3(x,y,z,'black');
+                scatter3(x,y,z,'black')
             elseif ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
-                scatter3(x,y,z,'yellow');
+                scatter3(x,y,z,'yellow')
             else % not visible to the sun or the satellite
-                scatter3(x,y,z,'green');
+                scatter3(x,y,z,'green')
             end
             hold on;
             
@@ -87,13 +87,13 @@ while ischar(tline)
             
             if ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE && ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN
                 %visible to both satellite and the sun.
-                scatter3(x,y,z,'red');   
+                scatter3(x,y,z,'red')    
             elseif ACTUAL_DISTANCE_TO_SATELLITE<MAX_DISTANCE_TO_SATELLITE %only visible to the satellite.
-                scatter3(x,y,z,'black');
+                scatter3(x,y,z,'black')
             elseif ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
-                scatter3(x,y,z,'yellow');
+                scatter3(x,y,z,'yellow')
             else % not visible to the sun or the satellite
-                scatter3(x,y,z,'green');
+                scatter3(x,y,z,'green')
             end
             hold on;
             
@@ -104,14 +104,6 @@ while ischar(tline)
     xlabel('x (meters)');
      ylabel('y (meters)');
       zlabel('z (meters)');
-      
-      
-      
-
-
-    saveas( gcf, int2str(imageNameCounter), 'jpg' );
-
-      imageNameCounter=imageNameCounter+1;
     pause(2);
     
     close all;

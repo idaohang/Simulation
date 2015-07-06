@@ -63,9 +63,9 @@ const double E_s=1360; //wiki (W/m^2)
 
 const double M_b=E_s/4; //As derived in the paper.
 
-const int NUM_STEPS_THETA=20;
+const int NUM_STEPS_THETA=2;
 
-const int NUM_STEPS_beta=20;
+const int NUM_STEPS_beta=2;
 
 double THETA_MAX;
 
@@ -108,7 +108,7 @@ double calculateSunlightEffect(double beta, double theta) {
     
     double areaEarthElement=pow(EARTH_RADIUS,2)*sin(theta)*theta_interval*beta_interval;
     
-    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)* areaEarthElement; //this is an approximation for our area, using dA=d_beta*d_theta. This probably introduces a slight error (as opposed to a flat integral, an integral over a curved surface mutates your dA).
+    return (albedo*E_s*cos(returnSunAngleForAreaElementAt(beta,theta))+e*M_b)*Ac/(M_PI*pow(r,2))*cos(alpha)* areaEarthElement;
 }
 
 double returnAngleBetweenTwoVectors(double X, double Y, double Z, double X0, double Y0, double Z0) {
@@ -124,18 +124,20 @@ double returnDistanceBetweenPoints(double X, double Y, double Z, double X0, doub
     return distance;
 }
 
-bool returnValidPointInRelationToSun (double beta, double theta) //returns whether a point is with the area seen by the sun. (We're iterating over common area between the satellite and the sun)
+bool returnValidPointInRelationToSun (double beta, double theta) //returns whether a point is within the area seen by the sun. (We're iterating to find common area visible to the satellite and the sun)
 {
     double x=EARTH_RADIUS*cos(theta)*sin(beta); //just translating from cartesian to spherical.
     double y=EARTH_RADIUS*sin(theta)*sin(beta);
     double z=EARTH_RADIUS*cos(beta);
+    
+    double earthRadius=magnitudeOfVector(x, y, z);
     
     double ACTUAL_DISTANCE=returnDistanceBetweenPoints(x, y, z, SUN_X, SUN_Y, SUN_Z);
     
     return (MAX_ACCEPTABLE_DISTANCE > ACTUAL_DISTANCE);
 }
 
-double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SAT_Z_PARAM,double SUN_X_PARAM, double SUN_Y_PARAM, double SUN_Z_PARAM, double albedo_PARAM)    { //function that simply iterates over a square, and calculates sunlight effect accordinly...
+double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SAT_Z_PARAM,double SUN_X_PARAM, double SUN_Y_PARAM, double SUN_Z_PARAM, double albedo_PARAM)    { //function that simply iterates over a circle area defined by beta and theta, and calculates sunlight effect accordinly...
     
     //asign parameters as global variables.
     SAT_X=SAT_X_PARAM;
@@ -168,7 +170,6 @@ double returnFluxForParameters(double SAT_X_PARAM, double SAT_Y_PARAM, double SA
     {
         for(double theta = 0; theta <THETA_MAX; theta = theta + theta_interval)
         {
-
             if (returnValidPointInRelationToSun(beta,theta))  {
                 //calculate the z position for this discrete piece
                 
@@ -234,8 +235,9 @@ int main ()
             counter=0;
             
             //Before we run our simulation, we need to reorient our axes.
-            //The satellite need to be on the vertical axis (since this is how we iterate alpha/theta)
+            //The satellite needs to be on the vertical axis (since this is how we iterate alpha/theta)
             //Rotation matrix code is forked from: http://www.programming-techniques.com/2012/03/3d-rotation-algorithm-about-arbitrary.html
+            //Rotates counterclockwise about arbitrary axis vector that passes through the origin.
 
             float angle=returnAngleBetweenTwoVectors(SAT_X_PARAM, SAT_Y_PARAM, SAT_Z_PARAM, 0, 0, 1);
            
@@ -263,7 +265,6 @@ int main ()
             inputMatrix[2][0] = SUN_Z_PARAM;
             inputMatrix[3][0] = 1.0;
             
-            setUpRotationMatrix(angle, u, v, w); //do the same procedure with the sun.
             multiplyMatrix();
             SUN_X=outputMatrix[0][0];
             SUN_Y=outputMatrix[1][0];
