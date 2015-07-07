@@ -47,8 +47,6 @@ for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
         y=EARTH_RADIUS*sin(alpha)*sin(theta);
         z=EARTH_RADIUS*cos(alpha);
         
-        
-        
         %find the unit vector from earth element to satellite
         earthElementToSatVect=[SAT_X-x,SAT_Y-y,SAT_Z-z];
         unitElementToSatVect=earthElementToSatVect/norm(earthElementToSatVect);
@@ -85,15 +83,12 @@ for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
     end
 end
 
-%Eliminate zero elements of matrices:
-% unitVectMatrix = unitVectMatrix(1:maxCounterValue,:);
-
-unitVectMatrix = unitVectMatrix(1:3,1:maxCounterValue);
-
+%Eliminate extra rows:
+unitVectMatrix = unitVectMatrix(1:counter,1:3);
 dFluxMatrix=sparse(dFluxMatrix);
-
 end
 
+%Rotates axes to "place" the satellite on the z axis
 function [SAT_X0,SAT_Y0,SAT_Z0,SUN_X0,SUN_Y0,SUN_Z0,R]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z)
 new_z=[SAT_X,SAT_Y,SAT_Z];
 new_z=new_z/norm(new_z);
@@ -116,5 +111,3 @@ SAT_X0=SAT_NEW_VECTOR(1,1);
 SAT_Y0=SAT_NEW_VECTOR(2,1);
 SAT_Z0=SAT_NEW_VECTOR(3,1);
 end
-
-
