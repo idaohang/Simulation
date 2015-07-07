@@ -11,6 +11,8 @@ function main
     E_s=1360;
     e=1-albedo;
     M_b=E_s/4;
+    
+    MASS_SAT=100 %kg
     Ac=.5;
     
     SUN_ORIGINAL_X=3.581118709561659*10^10;
@@ -54,7 +56,7 @@ function main
         MAX_DISTANCE_TO_SATELLITE=DISTANCE_FROM_EARTH_CENTER_TO_SAT*sin(MAX_SAT_ANGLE);
         MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SUN_ANGLE);
         
-        NUM_STEPS_BETA=20;
+        NUM_STEPS_BETA=30;
         NUM_STEPS_THETA=40;
         
         INTERVAL_BETA=MAX_SAT_ANGLE/NUM_STEPS_BETA;
@@ -89,7 +91,7 @@ function main
                     
                     sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); % angle between a and b
                     
-                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement; % flux calculation, returning a dlux value in watts or (Joules/s)
+                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)/(pi*r^2)*cos(alpha)*areaEarthElement; % flux calculation, returning a dlux value in watts/m^2
                     
                     NET_FLUX=NET_FLUX+dflux;
                     
@@ -103,8 +105,10 @@ function main
                 hold on;
             end
         end
+        
+        %Now
 
-        title(strcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX)));
+        title(strcat(strcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX),'W/m^2')));
         tline = fgets(fileID);
         xlabel('x (meters)');
         ylabel('y (meters)');
