@@ -89,7 +89,7 @@ function main
                     
                     sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); % angle between a and b
                     
-                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement; % flux calculation
+                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement; % flux calculation, returning a dlux value in watts or (Joules/s)
                     
                     NET_FLUX=NET_FLUX+dflux;
                     
