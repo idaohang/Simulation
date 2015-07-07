@@ -12,7 +12,7 @@ function main
     e=1-albedo;
     M_b=E_s/4;
     
-    MASS_SAT=100 %kg
+    MASS_SAT=100; %kg
     Ac=.5;
     
     SUN_ORIGINAL_X=3.581118709561659*10^10;
@@ -87,7 +87,7 @@ function main
                     areaEarthElement=EARTH_RADIUS^2*sin(alpha)*INTERVAL_THETA*INTERVAL_BETA;
                     
                     a=[x,y,z]; %vector normal to earth element.
-                    b=[SUN_X-x,SUN_Y-y,SUN_Z-z] % vector from earth element to sun
+                    b=[SUN_X-x,SUN_Y-y,SUN_Z-z]; % vector from earth element to sun
                     
                     sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); % angle between a and b
                     
@@ -106,9 +106,18 @@ function main
             end
         end
         
-        %Now
+        %Now calculate the force every satellite gets:
+        accelerationVector=zeros(1,3);
+        
+        %Vector form earth element to satellite
+        vect=[SAT_X-x,SAT_Y-y,SAT_Z-z];
+        vect=vect/norm(vect);
+        
+        Cr=.2
+        c= 299792458; %speed of light, m/s
+        accelerationVector=NET_FLUX*Ac/(c*MASS_SAT) * (2*Cr*vect+(1-Cr)*vect);
 
-        title(strcat(strcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX),'W/m^2')));
+        title(strcat(strcat(strcat(strcat('Reflected Flux Hitting Satellite: ',num2str(NET_FLUX),'W/m^2')),' with acceleration vector: '),num2str(accelerationVector)));
         tline = fgets(fileID);
         xlabel('x (meters)');
         ylabel('y (meters)');
