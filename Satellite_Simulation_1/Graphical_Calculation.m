@@ -79,22 +79,17 @@ function main
                     %calculate...
                     scatter3(x,y,z,'red');
                     
-%                     This is the case where we calculate flux...
+%                   This is the case where we calculate flux...
                     r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
     
-                    %We have been using the variable beta to denote the limits of our discretization.
-                    %Note that alpha is used the paper to describe the angle between the normal vector to the area element and the satellite vector. This is different than the beta we have been using an an for loop variable.
-                    %double alpha=returnAngleBetweenTwoVectors(x, y, z, SAT_X, SAT_Y, SAT_Z);
-    
-%                   areaEarthElement=EARTH_RADIUS^2*sin(theta)*INTERVAL_THETA*INTERVAL_BETA;
+                    areaEarthElement=EARTH_RADIUS^2*sin(alpha)*INTERVAL_THETA*INTERVAL_BETA;
                     
-                    areaEarthElement=EARTH_RADIUS^2*INTERVAL_THETA*INTERVAL_BETA; %ask sumeet if this approx is okay...
-    
-                    a=[x,y,z];
-                    b=[SUN_X,SUN_Y,SUN_Z]
-                    sunAngle = atan2(norm(cross(a,b)),dot(a,b));
+                    a=[x,y,z]; %vector normal to earth element.
+                    b=[SUN_X-x,SUN_Y-y,SUN_Z-z] % vector from earth element to sun
                     
-                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement;
+                    sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); % angle between a and b
+                    
+                    dflux=(albedo*E_s*cos(sunAngle)+e*M_b)*Ac/(pi*r^2)*cos(alpha)*areaEarthElement; % flux calculation
                     
                     NET_FLUX=NET_FLUX+dflux;
                     
