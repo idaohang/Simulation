@@ -85,6 +85,12 @@ for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
     end
 end
 
+%Eliminate zero elements of matrices:
+% unitVectMatrix = unitVectMatrix(1:maxCounterValue,:);
+
+unitVectMatrix = unitVectMatrix(1:3,1:maxCounterValue);
+
+dFluxMatrix=sparse(dFluxMatrix);
 
 end
 
