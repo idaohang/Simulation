@@ -27,22 +27,22 @@ MAX_SUN_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SUN);
 MAX_DISTANCE_TO_SATELLITE=DISTANCE_FROM_EARTH_CENTER_TO_SAT*sin(MAX_SAT_ANGLE);
 MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SUN_ANGLE);
 
-NUM_STEPS_BETA=10;
+NUM_STEPS_ALPHA=10;
 NUM_STEPS_THETA=10;
 
-INTERVAL_BETA=MAX_SAT_ANGLE/NUM_STEPS_BETA;
+INTERVAL_ALPHA=MAX_SAT_ANGLE/NUM_STEPS_ALPHA;
 THETA_MAX=2*pi;
 INTERVAL_THETA=THETA_MAX/NUM_STEPS_THETA;
 
 %Preallocation, the maximum number of possible spots...
-maxCounterValue=(NUM_STEPS_THETA+1)*(NUM_STEPS_BETA+1);
+maxCounterValue=(NUM_STEPS_THETA+1)*(NUM_STEPS_ALPHA+1);
 dFluxMatrix=zeros(maxCounterValue,1);
 unitVectMatrix=zeros(maxCounterValue,3);
 
 counter=0;
 
-for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
-    for theta=0:INTERVAL_THETA:THETA_MAX
+for alpha=INTERVAL_ALPHA/2:INTERVAL_ALPHA:MAX_SAT_ANGLE-INTERVAL_ALPHA/2
+    for theta=0:INTERVAL_THETA:THETA_MAX-INTERVAL_THETA
         x=EARTH_RADIUS*sin(alpha)*cos(theta);
         y=EARTH_RADIUS*sin(alpha)*sin(theta);
         z=EARTH_RADIUS*cos(alpha);
@@ -61,7 +61,7 @@ for alpha=0:INTERVAL_BETA:MAX_SAT_ANGLE
             %This is the case where we calculate flux...
             r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
             
-            areaEarthElement=EARTH_RADIUS^2*sin(alpha)*INTERVAL_THETA*INTERVAL_BETA;
+            areaEarthElement=EARTH_RADIUS^2*sin(alpha)*INTERVAL_THETA*INTERVAL_ALPHA;
             
             a=[x,y,z]; %vector normal to earth element.
             b=[SUN_X-x,SUN_Y-y,SUN_Z-z]; % vector from earth element to sun
