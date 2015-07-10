@@ -65,7 +65,7 @@ function main
         
         NET_FLUX=0;
         
-for alpha=INTERVAL_ALPHA/2:INTERVAL_ALPHA:MAX_SAT_ANGLE-INTERVAL_ALPHA/2
+for alpha=INTERVAL_ALPHA/2:INTERVAL_ALPHA:MAX_SAT_ANGLE
     for theta=0:INTERVAL_THETA:THETA_MAX-INTERVAL_THETA
         x=EARTH_RADIUS*sin(alpha)*cos(theta);
         y=EARTH_RADIUS*sin(alpha)*sin(theta);
@@ -140,7 +140,7 @@ new_z=new_z/norm(new_z);
 b=new_z;
 
 angle=acos(dot(a,b)/(norm(a)*norm(b)));
-if (angle==0) % Satellit already on vertical.
+if (angle==0 || angle==pi) % Satellit already on vertical.
     SUN_X0=SUN_X;
     SUN_Y0=SUN_Y;
     SAT_X0=SAT_X;
