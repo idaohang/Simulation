@@ -20,16 +20,13 @@ SAT_X=SAT_VECT(1,1);
 SAT_Y=SAT_VECT(1,2);
 SAT_Z=SAT_VECT(1,3);
 
-%Check unit vectors; make sure they're transposed correctly...
-
 [SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z,R]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_ORIGINAL_X,SUN_ORIGINAL_Y,SUN_ORIGINAL_Z);
 
 %Plotting sun to center of earth, for debugging...
-% Your two points
 P1 = [0,0,0];
 
 P2 = [SUN_X,SUN_Y,SUN_Z]/100000;
-  P2=1.3*EARTH_RADIUS*P2/norm(P2);
+P2=1.3*EARTH_RADIUS*P2/norm(P2);
 
 % Their vertial concatenation is what you want
 pts = [P1; P2];
@@ -39,9 +36,7 @@ line(pts(:,1), pts(:,2), pts(:,3))
 hold on;
 % % Alternatively, you could use plot3:
 % plot3(pts(:,1), pts(:,2), pts(:,3))
-%%%%%%%%%%%%%
 
-%Also for debugging only:
 scatter3(SAT_X,SAT_Y,SAT_Z,'cyan');
 hold on;
 %%%%%End for debugging.
@@ -51,11 +46,9 @@ DISTANCE_FROM_EARTH_CENTER_TO_SAT=(SAT_X^2+SAT_Y^2+SAT_Z^2)^.5;
 MAX_ALPHA=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SAT);
 
 NUM_STEPS_ALPHA=15;
-NUM_STEPS_THETA=1;
+NUM_STEPS_THETA=25;
 
 ALPHA_INTERVAL=MAX_ALPHA/(NUM_STEPS_ALPHA);
-
-% after you figure this stuff out check to make sure that sun edge cases hold...
 
 %Preallocation, the maximum number of possible spots...
 maxCounterValue=(NUM_STEPS_THETA+1)*(NUM_STEPS_ALPHA+1);
@@ -63,8 +56,6 @@ dFluxMatrix=zeros(maxCounterValue,1);
 unitVectMatrix=zeros(maxCounterValue,3);
 
 counter=0;
-
-%TODO Check all mod functions.
 
 %%% Due to our transformation, we now know the sun, the satelite and x axis are all in the same place. We need to calculate the angle between the sun and the y axis.
 %%% (let's call this angle kappa);
@@ -95,128 +86,126 @@ if ~betaBool % if can't even see sun.
     disp('#################################################');
     disp('Sun and satellite have no common visibility area');
     disp('#################################################');
-%     return; % make sure this syntax works...
 else
     for alpha=MIN_ALPHA:ALPHA_INTERVAL:MAX_ALPHA
-    
-    [betaBool]=BETA_CHECK_PASSED(SUN_V,alpha);
-    if ~betaBool % if can't even see sun.
-        dFluxMatrix=[];
-        unitVectMatrix=[];
-        continue; % make sure this syntax works...
-    end
-    
-    %For every alpha, we can use our trigonometry calculations
-    
-    %We're just going to run over one side of the band and double the flux
-    %generated since the problem is symmetric the way we've set up the
-    %axes.
-    THETA_LOWER_BOUND=0;
-    
-    kappaCopy=kappa;
+        
+        [betaBool]=BETA_CHECK_PASSED(SUN_V,alpha);
+        if ~betaBool % if can't even see sun.
+            dFluxMatrix=[];
+            unitVectMatrix=[];
+            continue;
+        end
+        
+        %For every alpha, we can use our trigonometry calculations
+        
+        %We're just going to run over one side of the band for y=y && y=-y since the problem is symmetric the way we've set up the
+        %axes.
+        THETA_LOWER_BOUND=0;
+        
+        kappaCopy=kappa;
         if (kappaCopy>pi/2)
             kappaCopy=kappaCopy-pi/2;
         else
             kappaCopy=pi/2-kappaCopy;
         end
-    [boolAllBandVisible]=allBandVisible(alpha,kappa);
-    THETA_UPPER_BOUND=0;
-    if (boolAllBandVisible)
-        THETA_UPPER_BOUND=pi;
-    else
-        q=EARTH_RADIUS*cos(alpha);
-        h=EARTH_RADIUS*(1-cos(alpha));
-
-        d=q*sin(kappaCopy);
-        
-        zed=EARTH_RADIUS*sin(alpha);
-        
-        sci=acos(d/zed);
-        
-        if SUN_Z<0
-            lambda=sci;
+        [boolAllBandVisible]=allBandVisible(alpha,kappa);
+        THETA_UPPER_BOUND=0;
+        if (boolAllBandVisible)
+            THETA_UPPER_BOUND=pi;
         else
-            lambda=pi-sci;
-        end
-        
-        THETA_UPPER_BOUND=lambda;
-    end
-    
-    if (SUN_X<0)
-        THETA_LOWER_BOUND=THETA_LOWER_BOUND+pi;
-        THETA_UPPER_BOUND=THETA_UPPER_BOUND+pi;
-    end
-    
-    THETA_INTERVAL=(THETA_UPPER_BOUND-THETA_LOWER_BOUND)/NUM_STEPS_THETA;
-    
-    for theta=THETA_LOWER_BOUND:THETA_INTERVAL:(THETA_UPPER_BOUND-THETA_INTERVAL)
-        
-        x=EARTH_RADIUS*sin(alpha)*cos(theta);
-        y=EARTH_RADIUS*sin(alpha)*sin(theta);
-        z=EARTH_RADIUS*cos(alpha);
-        
-        for (i=1:-2:-1) %little hack just sets x=x and x=-x (since we're dealing with a symmetric problem).
-            if (i==-1 && y==0) %dont double count the x=0 (reflected is equivalent)
-                continue;
+            q=EARTH_RADIUS*cos(alpha);
+            h=EARTH_RADIUS*(1-cos(alpha));
+            
+            d=q*sin(kappaCopy);
+            
+            zed=EARTH_RADIUS*sin(alpha);
+            
+            sci=acos(d/zed);
+            
+            if SUN_Z<0
+                lambda=sci;
+            else
+                lambda=pi-sci;
             end
             
-            y=i*y;
+            THETA_UPPER_BOUND=lambda;
+        end
+        
+        if (SUN_X<0)
+            THETA_LOWER_BOUND=THETA_LOWER_BOUND+pi;
+            THETA_UPPER_BOUND=THETA_UPPER_BOUND+pi;
+        end
+        
+        THETA_INTERVAL=(THETA_UPPER_BOUND-THETA_LOWER_BOUND)/NUM_STEPS_THETA;
+        
+        for theta=THETA_LOWER_BOUND:THETA_INTERVAL:(THETA_UPPER_BOUND-THETA_INTERVAL)
             
-            scatter3(x,y,z,'red'); % TODO DELETE IN FINAL VERSION...
-            hold on;
+            x=EARTH_RADIUS*sin(alpha)*cos(theta);
+            y=EARTH_RADIUS*sin(alpha)*sin(theta);
+            z=EARTH_RADIUS*cos(alpha);
             
-            %find the unit vector from earth element to satellite
-            earthElementToSatVect=[SAT_X-x,SAT_Y-y,SAT_Z-z];
-            unitElementToSatVect=earthElementToSatVect/norm(earthElementToSatVect);
-            Rtrans=transpose(R);
-            unitElementToSatVect=unitElementToSatVect*Rtrans;
-            
-            %Calculate flux
-            r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
-            
-            areaEarthElement=EARTH_RADIUS^2*sin(alpha)*THETA_INTERVAL*ALPHA_INTERVAL;
-            
-            a=[x,y,z]; %vector normal to earth element.
-            b=[SUN_X-x,SUN_Y-y,SUN_Z-z]; % vector from earth element to sun
-            
-            sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); %angle between a and b
-
-            dflux=(albedo*E_s*cos(sunAngle)+e*M_b)/(pi*r^2)*cos(alpha)*areaEarthElement; %flux calculation, value in watts/m^2
-            
-            if dflux>0 %~dflux==0
-                counter=counter+1;
-                unitVectMatrix(counter,1)=unitElementToSatVect(1,1);
-                unitVectMatrix(counter,2)=unitElementToSatVect(1,2);
-                unitVectMatrix(counter,3)=unitElementToSatVect(1,3);
+            for (i=1:-2:-1) %little hack just sets x=x and x=-x (since we're dealing with a symmetric problem).
+                if (i==-1 && y==0) %dont double count the x=0 (reflected is equivalent)
+                    continue;
+                end
                 
-                dFluxMatrix(counter,1)=dflux;
+                y=i*y;
+                
+                scatter3(x,y,z,'red'); % TODO DELETE IN FINAL VERSION...
+                hold on;
+                
+                %find the unit vector from earth element to satellite
+                earthElementToSatVect=[SAT_X-x,SAT_Y-y,SAT_Z-z];
+                unitElementToSatVect=earthElementToSatVect/norm(earthElementToSatVect);
+                Rtrans=transpose(R);
+                unitElementToSatVect=unitElementToSatVect*Rtrans;
+                
+                %Calculate flux
+                r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
+                
+                areaEarthElement=EARTH_RADIUS^2*sin(alpha)*THETA_INTERVAL*ALPHA_INTERVAL;
+                
+                a=[x,y,z]; %vector normal to earth element.
+                b=[SUN_X-x,SUN_Y-y,SUN_Z-z]; % vector from earth element to sun
+                
+                sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); %angle between a and b
+                
+                dflux=(albedo*E_s*cos(sunAngle)+e*M_b)/(pi*r^2)*cos(alpha)*areaEarthElement; %flux calculation, value in watts/m^2
+                
+                if dflux>0 %~dflux==0
+                    counter=counter+1;
+                    unitVectMatrix(counter,1)=unitElementToSatVect(1,1);
+                    unitVectMatrix(counter,2)=unitElementToSatVect(1,2);
+                    unitVectMatrix(counter,3)=unitElementToSatVect(1,3);
+                    
+                    dFluxMatrix(counter,1)=dflux;
+                end
             end
         end
     end
-end
-
-%Eliminate extra rows:
-unitVectMatrix = unitVectMatrix(1:counter,1:3);
-dFluxMatrix=sparse(dFluxMatrix);
-
-%as a check, let's calculate dflux. We can check this against our other
-%program,
-%TODO DELETE Netflux calculation in final version of program.
-disp('**************')
-disp('NET FLUX:')
-NET_FLUX=sum(dFluxMatrix);
-disp(NET_FLUX);
-disp('**************')
-toc
-
-xlabel('x axis');
-ylabel('y axis');
-zlabel('z axis');
+    
+    %Eliminate extra rows:
+    unitVectMatrix = unitVectMatrix(1:counter,1:3);
+    dFluxMatrix=sparse(dFluxMatrix);
+    
+    %as a check, let's calculate dflux. We can check this against our other
+    %program,
+    %TODO DELETE Netflux calculation in final version of program.
+    disp('**************')
+    disp('NET FLUX:')
+    NET_FLUX=sum(dFluxMatrix);
+    disp(NET_FLUX);
+    disp('**************')
+    toc
+    
+    xlabel('x axis');
+    ylabel('y axis');
+    zlabel('z axis');
     
 end
 
 %%%%%%BETEWEEN THESE LINES IS VERIFICATION CODE:
- DISTANCE_FROM_EARTH_CENTER_TO_SUN=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
+DISTANCE_FROM_EARTH_CENTER_TO_SUN=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
 MAX_SUN_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SUN);
 MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SUN_ANGLE);
 for alpha=0:.1:pi
@@ -284,11 +273,11 @@ else % We do the transformation
     end
     
     new_y=new_y/norm(new_y);
-
+    
     new_x=[];
     new_x=cross(new_y,new_z);
     new_x=new_x/norm(new_x);
-
+    
     R=[new_x;new_y;new_z];
     
     SUN_NEW_VECTOR=R*[SUN_X;SUN_Y;SUN_Z];
