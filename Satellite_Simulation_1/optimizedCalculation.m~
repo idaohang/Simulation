@@ -160,7 +160,7 @@ else
     
     THETA_INTERVAL=(THETA_UPPER_BOUND-THETA_LOWER_BOUND)/NUM_STEPS_THETA;
     
-    for theta=THETA_LOWER_BOUND:THETA_INTERVAL:THETA_UPPER_BOUND-THETA_INTERVAL
+    for theta=THETA_LOWER_BOUND:THETA_INTERVAL:(THETA_UPPER_BOUND-THETA_INTERVAL)
         
         x=EARTH_RADIUS*sin(alpha)*cos(theta);
         y=EARTH_RADIUS*sin(alpha)*sin(theta);
@@ -204,6 +204,8 @@ else
             THETA_ONE=atan(SUN_Y/SUN_X);
             alpha_one=atan((SUN_X^2+SUN_Y^2)/SUN_Z);
             
+            SUN_DISTANCE=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5
+            
             %Earth element
             D2=EARTH_RADIUS;
             THETA_MIN=THETA_LOWER_BOUND;
@@ -214,7 +216,11 @@ else
             
             R=D1*D2*cos(alpha_one)*cos(alpha_two);
             
-             sunAngle=-p*sin(THETA_ONE-THETA_MAX)+p*sin(THETA_ONE-THETA_MIN)+R*(THETA_MAX-THETA_MIN);
+%             sunAngle=-p*sin(THETA_ONE-THETA_MAX)+p*sin(THETA_ONE-THETA_MIN)+R*(THETA_MAX-THETA_MIN)/(EARTH_RADIUS*SUN_DISTANCE);
+            
+            sunAngleIntegral=
+            
+            areaEarthElement=areaEarthElement*2;
             
             %%%%%%%%
             

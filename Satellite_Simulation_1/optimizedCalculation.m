@@ -24,14 +24,6 @@ SAT_Z=SAT_VECT(1,3);
 
 [SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z,R]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_ORIGINAL_X,SUN_ORIGINAL_Y,SUN_ORIGINAL_Z);
 
-% if SUN_Y<0
-%     SUN_Y=abs(SUN_Y); % we can just reflect the problem over...
-% end
-
-% if SUN_Z<0
-%    SUN_Z
-% end
-
 %Plotting sun to center of earth, for debugging...
 % Your two points
 P1 = [0,0,0];
@@ -150,9 +142,6 @@ else
         THETA_UPPER_BOUND=lambda;
     end
     
-    %     THETA_UPPER_BOUND=1; % remove this is for debuggin
-    
-    %     the way your doint the negative of x isn't right, should be negative of something else???
     if (SUN_X<0)
         THETA_LOWER_BOUND=THETA_LOWER_BOUND+pi;
         THETA_UPPER_BOUND=THETA_UPPER_BOUND+pi;
@@ -191,37 +180,7 @@ else
             b=[SUN_X-x,SUN_Y-y,SUN_Z-z]; % vector from earth element to sun
             
             sunAngle=acos(dot(a,b)/(norm(a)*norm(b))); %angle between a and b
-            
-            %%%%%%%%
-            %Experimental:
-%             Between these lines is an experiment to turn the operation
-%             time of the program from O(N^2) to O(N) by taking the integral
-%             of the sun angle as the program traverses around theta.
-            
-            %Sun coordinates spherical
-            
-            D1=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
-            THETA_ONE=atan(SUN_Y/SUN_X);
-            alpha_one=atan((SUN_X^2+SUN_Y^2)/SUN_Z);
-            
-            SUN_DISTANCE=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5
-            
-            %Earth element
-            D2=EARTH_RADIUS;
-            THETA_MIN=THETA_LOWER_BOUND;
-            THETA_MAX=THETA_UPPER_BOUND;
-            alpha_two=alpha;
-    
-            p=D1*D2*sin(alpha_one)*sin(alpha_two);
-            
-            R=D1*D2*cos(alpha_one)*cos(alpha_two);
-            
-            sunAngle=-p*sin(THETA_ONE-THETA_MAX)+p*sin(THETA_ONE-THETA_MIN)+R*(THETA_MAX-THETA_MIN)/(EARTH_RADIUS*SUN_DISTANCE);
-            
-            %%%%%%%%
-            
-            
-            
+
             dflux=(albedo*E_s*cos(sunAngle)+e*M_b)/(pi*r^2)*cos(alpha)*areaEarthElement; %flux calculation, value in watts/m^2
             
             if dflux>0 %~dflux==0
