@@ -3,13 +3,7 @@
 %Made by David Jackson, Summer 2015
 
 %assumes half angle for sun visibility, since sun is so far away.
-function [unitVectMatrix,dFluxMatrix]=optimizedCalculation(SAT_VECT,SUN_VECT,albedo)
-tic;
-
-optimizedCalculation_FINAL is the final version...
-
-close all;
-figure;
+function [unitVectMatrix,dFluxMatrix]=optimizedCalculation_FINAL(SAT_VECT,SUN_VECT,albedo)
 EARTH_RADIUS=6371000;
 E_s=1360;
 e=1-albedo;
@@ -25,31 +19,12 @@ SAT_Z=SAT_VECT(1,3);
 
 [SAT_X,SAT_Y,SAT_Z,SUN_X,SUN_Y,SUN_Z,R]=adjustSatAndSunPositions(SAT_X,SAT_Y,SAT_Z,SUN_ORIGINAL_X,SUN_ORIGINAL_Y,SUN_ORIGINAL_Z);
 
-%Plotting sun to center of earth, for debugging...
-P1 = [0,0,0];
-
-P2 = [SUN_X,SUN_Y,SUN_Z]/100000;
-P2=1.3*EARTH_RADIUS*P2/norm(P2);
-
-% Their vertial concatenation is what you want
-pts = [P1; P2];
-
-% Because that's what line() wants to see
-line(pts(:,1), pts(:,2), pts(:,3))
-hold on;
-% % Alternatively, you could use plot3:
-% plot3(pts(:,1), pts(:,2), pts(:,3))
-
-scatter3(SAT_X,SAT_Y,SAT_Z,'cyan');
-hold on;
-%%%%%End for debugging.
-
 DISTANCE_FROM_EARTH_CENTER_TO_SAT=(SAT_X^2+SAT_Y^2+SAT_Z^2)^.5;
 
 MAX_ALPHA=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SAT);
 
-NUM_STEPS_ALPHA=15;
-NUM_STEPS_THETA=25;
+NUM_STEPS_ALPHA=5; % Alter to your desired level of accuracy...
+NUM_STEPS_THETA=5;
 
 ALPHA_INTERVAL=MAX_ALPHA/(NUM_STEPS_ALPHA);
 
@@ -82,19 +57,10 @@ end
 if ~betaBool % if no band can see sun.
     dFluxMatrix=[];
     unitVectMatrix=[];
-    disp('#################################################');
-    disp('Sun and satellite have no common visibility area');
-    disp('#################################################');
 else
     for alpha=MIN_ALPHA:ALPHA_INTERVAL:MAX_ALPHA
         
-        [betaBool]=BETA_CHECK_PASSED(SUN_V,alpha);
-        if ~betaBool % if this band can't see sun.
-            dFluxMatrix=[];
-            unitVectMatrix=[];
-            continue;
-        end
-        
+
         %For every alpha, we can use our trigonometry calculations.
         
         %We're just going to run over one side of the band for y=y && y=-y since the problem is symmetric the way we've set up the
@@ -154,8 +120,8 @@ else
                 %find the unit vector from earth element to satellite
                 earthElementToSatVect=[SAT_X-x,SAT_Y-y,SAT_Z-z];
                 unitElementToSatVect=earthElementToSatVect/norm(earthElementToSatVect);
-                Rtrans=transpose(R);
-                unitElementToSatVect=unitElementToSatVect*Rtrans;
+                
+                unitElementToSatVect=(R'*unitElementToSatVect')';
                 
                 %Calculate flux
                 r = ( (x-SAT_X)^2 + (y-SAT_Y)^2 + (z-SAT_Z)^2 )^.5;  %distance between area element and the satellite.
@@ -176,11 +142,9 @@ else
                     unitVectMatrix(counter,3)=unitElementToSatVect(1,3);
                     
                     dFluxMatrix(counter,1)=dflux;
-                    scatter3(x,y,z,'red'); % TODO DELETE IN FINAL VERSION...
-                    hold on;
+                    
                 else
-                    scatter3(x,y,z,'black'); % TODO DELETE IN FINAL VERSION...
-                    hold on;
+                    
                 end
             end
         end
@@ -190,43 +154,19 @@ else
     unitVectMatrix = unitVectMatrix(1:counter,1:3);
     dFluxMatrix=sparse(dFluxMatrix);
     
-    %as a check, let's calculate dflux. We can check this against our other
-    %program,
-    %TODO DELETE Netflux calculation in final version of program.
-    disp('**************')
-    disp('NET FLUX:')
+    %We can use our calculation for flux to find out what the acceleration
+    %is...
+    Ac=.5; % assume satellite area of .5 meters.
     NET_FLUX=sum(dFluxMatrix);
-    disp(NET_FLUX);
-    disp('**************')
-    toc
-    
-    xlabel('x axis');
-    ylabel('y axis');
-    zlabel('z axis');
-    
+    MASS_SAT=100; %100kg
+    Cr=.2;
+    vect=[0 0 1];
+    c=299792458; %speed of light, m/s
+    accelerationVector=NET_FLUX*Ac/(c*MASS_SAT) * (2*Cr*vect+(1-Cr)*vect);
+    disp('acceleration vector: ');
+    disp(accelerationVector);
+    disp('*********************');
 end
-
-%%%%%%BETEWEEN THESE LINES IS VERIFICATION CODE:
-DISTANCE_FROM_EARTH_CENTER_TO_SUN=(SUN_X^2+SUN_Y^2+SUN_Z^2)^.5;
-MAX_SUN_ANGLE=acos(EARTH_RADIUS/DISTANCE_FROM_EARTH_CENTER_TO_SUN);
-MAX_DISTANCE_TO_SUN=DISTANCE_FROM_EARTH_CENTER_TO_SUN*sin(MAX_SUN_ANGLE);
-for alpha=0:.1:pi
-    for theta=0:.1:2*pi
-        x=EARTH_RADIUS*sin(alpha)*cos(theta);
-        y=EARTH_RADIUS*sin(alpha)*sin(theta);
-        z=EARTH_RADIUS*cos(alpha);
-        ACTUAL_DISTANCE_TO_SUN=((x-SUN_X)^2+(y-SUN_Y)^2+(z-SUN_Z)^2)^.5;
-        if ACTUAL_DISTANCE_TO_SUN<MAX_DISTANCE_TO_SUN % only visible to the sun.
-            scatter3(x,y,z,'yellow');
-        else % not visible to the sun or the satellite
-            scatter3(x,y,z,'green');
-        end
-        hold on;
-    end
-end
-
-%%%%%%%%%%%%
-
 end
 
 %adjusts the coordinate system so the sun and the satellite are in the same
