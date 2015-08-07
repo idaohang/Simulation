@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.131"
+    ComputedModelVersion    "1.132"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -30,7 +30,7 @@ Model {
       $ObjectID		      2
       $ClassName	      "Simulink.WindowInfo"
       IsActive		      [1]
-      Location		      [-13.0, 23.0, 1440.0, 837.0]
+      Location		      [0.0, 23.0, 1440.0, 837.0]
       Object {
 	$PropName		"ModelBrowserInfo"
 	$ObjectID		3
@@ -53,10 +53,10 @@ Model {
 	$ClassName		"Simulink.EditorInfo"
 	IsActive		[1]
 	ViewObjType		"SimulinkSubsys"
-	LoadSaveID		"89"
+	LoadSaveID		"8"
 	Extents			[1406.0, 667.0]
-	ZoomFactor		[1.0]
-	Offset			[0.0, 0.0]
+	ZoomFactor		[1.0703517587939697]
+	Offset			[-7.9184272300470582, 72.920187793427232]
       }
     }
   }
@@ -66,9 +66,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "DJackson"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Jul 28 12:14:09 2015"
-  RTWModifiedTimeStamp	  359986446
-  ModelVersionFormat	  "1.%<AutoIncrement:131>"
+  LastModifiedDate	  "Sat Aug 01 09:21:02 2015"
+  RTWModifiedTimeStamp	  360168087
+  ModelVersionFormat	  "1.%<AutoIncrement:132>"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -970,8 +970,8 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"Continuous/Discrete EKF"
-	Location		[-13, 23, 1427, 860]
-	Open			off
+	Location		[0, 23, 1440, 860]
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -982,7 +982,7 @@ Model {
 	TiledPaperMargins	[1.270000, 1.270000, 1.270000, 1.270000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"100"
+	ZoomFactor		"107"
 	Block {
 	  BlockType		  Inport
 	  Name			  "measure"
@@ -1027,7 +1027,7 @@ Model {
 	  BlockType		  Gain
 	  Name			  "B"
 	  SID			  "16"
-	  Position		  [145, 145, 185, 175]
+	  Position		  [155, 145, 195, 175]
 	  ZOrder		  -5
 	  Gain			  "B"
 	  Multiplication	  "Matrix(K*u)"
@@ -1039,7 +1039,7 @@ Model {
 	  BlockType		  Gain
 	  Name			  "C"
 	  SID			  "18"
-	  Position		  [485, 320, 525, 350]
+	  Position		  [485, 310, 525, 340]
 	  ZOrder		  -6
 	  Gain			  "C"
 	  Multiplication	  "Matrix(K*u)"
@@ -1523,7 +1523,7 @@ Model {
 	Line {
 	  SrcBlock		  "C"
 	  SrcPort		  1
-	  Points		  [130, 0; 0, 125]
+	  Points		  [130, 0; 0, 135]
 	  DstBlock		  "EKF"
 	  DstPort		  2
 	}
@@ -1610,9 +1610,9 @@ Model {
 	Line {
 	  SrcBlock		  "Zero-Order\nHold2"
 	  SrcPort		  1
-	  Points		  [12, 0; 0, 155]
+	  Points		  [12, 0; 0, 145]
 	  Branch {
-	    Points		    [0, 100]
+	    Points		    [0, 110]
 	    DstBlock		    "EKF"
 	    DstPort		    1
 	  }
@@ -1732,8 +1732,8 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"Discrete EKF"
-	Location		[-13, 23, 1427, 860]
-	Open			on
+	Location		[35, 27, 1475, 864]
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -1744,7 +1744,7 @@ Model {
 	TiledPaperMargins	[1.270000, 1.270000, 1.270000, 1.270000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"100"
+	ZoomFactor		"112"
 	Block {
 	  BlockType		  Inport
 	  Name			  "measure"
